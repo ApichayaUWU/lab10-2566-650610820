@@ -1,13 +1,37 @@
 "use client";
 
+import { cleanUser } from "@/libs/cleanUser";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { UserCard } from "@/components/UserCard";
 
 export default function RandomUserPage() {
   //user = null or array of object
   const [users, setUsers] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [genAmount, setGenAmount] = useState(1);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+  useEffect(() => {
+    if (isFirstLoad) {
+      setIsFirstLoad(false);
+      return;
+    }
+    // console.log("tasks is changed");
+    const strAmount = JSON.stringify(genAmount);
+    // console.log(strTasks);
+    localStorage.setItem("genAmount", strAmount);
+  }, [genAmount]);
+
+  useEffect(() => {
+    const strAmount = localStorage.getItem("Amount");
+    if (strAmount === null) {
+      setGenAmount([1]);
+      return;
+    }
+    const loadedAmount = JSON.parse(strAmount);
+    setGenAmount(loadedAmount);
+  }, []);
 
   const generateBtnOnClick = async () => {
     setIsLoading(true);
@@ -16,6 +40,8 @@ export default function RandomUserPage() {
     );
     setIsLoading(false);
     const users = resp.data.results;
+    const cleanedUser = users.map((x) => cleanUser(x));
+    setUsers(cleanedUser);
     //Your code here
     //Process result from api response with map function. Tips use function from /src/libs/cleanUser
     //Then update state with function : setUsers(...)
@@ -40,7 +66,17 @@ export default function RandomUserPage() {
       {isLoading && (
         <p className="display-6 text-center fst-italic my-4">Loading ...</p>
       )}
-      {users && !isLoading && users.map(/*code map rendering UserCard here */)}
+      {users &&
+        !isLoading &&
+        users.map((n) => (
+          <UserCard
+            key={n.email}
+            name={n.name}
+            imgUrl={n.imgUrl}
+            address={n.address}
+            email={n.email}
+          ></UserCard>
+        ))}
     </div>
   );
 }
