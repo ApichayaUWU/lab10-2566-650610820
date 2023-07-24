@@ -24,9 +24,9 @@ export default function RandomUserPage() {
   }, [genAmount]);
 
   useEffect(() => {
-    const strAmount = localStorage.getItem("Amount");
+    const strAmount = localStorage.getItem("genAmount");
     if (strAmount === null) {
-      setGenAmount([1]);
+      setGenAmount(1);
       return;
     }
     const loadedAmount = JSON.parse(strAmount);
